@@ -1,12 +1,12 @@
 import React from 'react';
-import { FiPlus, FiMessageSquare, FiSettings, FiUser } from 'react-icons/fi';
+import { FiPlus, FiMessageSquare, FiSettings, FiUser, FiTrash2 } from 'react-icons/fi';
 import './Sidebar.css';
 
-const Sidebar = ({ isOpen, toggleSidebar }) => {
+const Sidebar = ({ isOpen, toggleSidebar, chatSessions, currentChatId, createNewChat, loadChat, deleteChat }) => {
     return (
         <aside className={`sidebar ${isOpen ? 'open' : 'closed'}`}>
             <div className="sidebar-header">
-                <button className="new-chat-btn">
+                <button className="new-chat-btn" onClick={createNewChat}>
                     <FiPlus size={20} />
                     <span>New Chat</span>
                 </button>
@@ -16,14 +16,34 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
                 <div className="history-group">
                     <p className="history-title">Recent</p>
                     <ul className="history-list">
-                        <li className="history-item active">
-                            <FiMessageSquare size={16} />
-                            <span>React Context API Help</span>
-                        </li>
-                        <li className="history-item">
-                            <FiMessageSquare size={16} />
-                            <span>Fix Python Build Error</span>
-                        </li>
+                        {chatSessions.length === 0 ? (
+                            <li className="history-item empty">
+                                <span style={{ opacity: 0.5, fontSize: '0.9rem' }}>No recent chats</span>
+                            </li>
+                        ) : (
+                            chatSessions.map((chat) => (
+                                <li
+                                    key={chat.id}
+                                    className={`history-item ${chat.id === currentChatId ? 'active' : ''}`}
+                                    onClick={() => loadChat(chat.id)}
+                                >
+                                    <div className="history-item-content">
+                                        <FiMessageSquare size={16} />
+                                        <span className="truncate">{chat.title}</span>
+                                    </div>
+                                    <button
+                                        className="delete-chat-btn"
+                                        onClick={(e) => {
+                                            e.stopPropagation(); // prevent loading the chat when deleting
+                                            deleteChat(chat.id);
+                                        }}
+                                        title="Delete chat"
+                                    >
+                                        <FiTrash2 size={14} />
+                                    </button>
+                                </li>
+                            ))
+                        )}
                     </ul>
                 </div>
             </div>
