@@ -1,7 +1,6 @@
-import { Client } from "@gradio/client";
+import { HfInference } from '@huggingface/inference';
 
 export default async function handler(req, res) {
-    // CORS configuration if needed
     res.setHeader('Access-Control-Allow-Credentials', true);
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS,PATCH,DELETE,POST,PUT');
@@ -26,33 +25,32 @@ export default async function handler(req, res) {
             return res.status(400).json({ message: 'Prompt is required' });
         }
 
-        // Connect to the popular Qwen 2.5 72B Instruct Space
-        // This space is public and doesn't explicitly require an API key for basic usage via Gradio
-        const client = await Client.connect("Qwen/Qwen2.5-72B-Instruct");
+        const hfToken = process.env.HUGGINGFACE_API_KEY;
 
-        // The exact api_name depends on the Space's Gradio configuration. 
-        // We'll use the predict function. Usually it takes the query, history, and system prompt.
-        const result = await client.predict("/model_chat", {
-            query: prompt,
-            history: [],
-            system: "You are a helpful, smart, and friendly AI assistant.",
+        if (!hfToken) {
+            console.error('HUGGINGFACE_API_KEY is missing');
+            return res.status(500).json({
+                message: 'Hugging Face Access Token not found. Please add HUGGINGFACE_API_KEY in Vercel Environment Variables.'
+            });
+        }
+
+        const hf = new HfInference(hfToken);
+
+        // We use a high-quality free model that works well with the Inference API
+        const response = await hf.chatCompletion({
+            model: "mistralai/Mistral-7B-Instruct-v0.2",
+            messages: [
+                { role: "system", content: "You are a helpful, smart, and friendly AI assistant." },
+                { role: "user", content: prompt }
+            ],
+            max_tokens: 500,
         });
 
-        // Gradio usually returns the full conversation history. The last item is the AI's response.
-        // result.data handles the returned tuple depending on the space structure.
-        let text = "Response could not be parsed.";
-        if (result && result.data && result.data.length > 0) {
-            // Look at the returned data payload
-            const payload = result.data[1]; // Typically history is at index 1
-            if (Array.isArray(payload) && payload.length > 0) {
-                const lastMessage = payload[payload.length - 1];
-                text = lastMessage[1]; // The assistant's response is the second item in the tuple [user, assistant]
-            }
-        }
+        const text = response.choices[0].message.content;
 
         return res.status(200).json({ response: text });
     } catch (error) {
-        console.error('Error in chat generation via Gradio:', error);
-        return res.status(500).json({ message: 'Failed to generate response via Space', error: error.message });
+        console.error('Error in Hugging Face generation:', error);
+        return res.status(500).json({ message: 'Failed to generate response', error: error.message });
     }
 }
