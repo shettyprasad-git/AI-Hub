@@ -1,0 +1,100 @@
+﻿git : remote: error: 
+GH013: Repository rule 
+violations found for re
+fs/heads/update-sidebar
+-features.        
+At line:1 char:1
++ git push -u origin up
+date-sidebar-features 
+2>&1 | Out-File 
+-Encoding  ...
++ ~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~
+~~~
+    + CategoryInfo     
+         : 
+NotSpecified: (rem    
+ote: error: ...atures. 
+           :String) 
+[], R    emoteException
+    + 
+FullyQualifiedErrorI   
+ d : NativeCommandError
+ 
+remote: 
+remote: - GITHUB PUSH 
+PROTECTION        
+remote:   ΓÇöΓÇöΓÇöΓÇöΓ
+ÇöΓÇöΓÇöΓÇöΓÇöΓÇöΓÇöΓÇö
+ΓÇöΓÇöΓÇöΓÇöΓÇöΓÇöΓÇöΓÇ
+öΓÇöΓÇöΓÇöΓÇöΓÇöΓÇöΓÇöΓ
+ÇöΓÇöΓÇöΓÇöΓÇöΓÇöΓÇöΓÇö
+ΓÇöΓÇöΓÇöΓÇöΓÇöΓÇö     
+   
+remote:     Resolve 
+the following 
+violations before 
+pushing again        
+remote: 
+remote:     - Push 
+cannot contain secrets 
+       
+remote: 
+remote:             
+remote:      (?) Learn 
+how to resolve a 
+blocked push        
+remote:      https://do
+cs.github.com/code-secu
+rity/secret-scanning/wo
+rking-with-secret-scann
+ing-and-push-protection
+/working-with-push-prot
+ection-from-the-command
+-line#resolving-a-block
+ed-push        
+remote:             
+remote:             
+remote:       ΓÇöΓÇö 
+Hugging Face User 
+Access Token ΓÇöΓÇöΓÇöΓ
+ÇöΓÇöΓÇöΓÇöΓÇöΓÇöΓÇöΓÇö
+ΓÇöΓÇöΓÇöΓÇöΓÇöΓÇöΓÇöΓÇ
+öΓÇö        
+remote:        
+locations:        
+remote:          - 
+commit: 92754a54995e1b2
+7d2804feabac89fb8efb2db
+73        
+remote:            
+path: .env:1        
+remote:             
+remote:        (?) To 
+push, remove secret 
+from commit(s) or 
+follow this URL to 
+allow the secret.      
+  
+remote:        https://
+github.com/shettyprasad
+-git/AI-Hub/security/se
+cret-scanning/unblock-s
+ecret/3A1rUfeoCpWPLcCtP
+9Epz8K1PWl        
+remote:             
+remote: 
+remote: 
+To https://github.com/s
+hettyprasad-git/AI-Hub.
+git
+ ! [remote rejected] up
+date-sidebar-features 
+-> update-sidebar-featu
+res (push declined due 
+to repository rule 
+violations)
+error: failed to push 
+some refs to 'https://g
+ithub.com/shettyprasad-
+git/AI-Hub.git'
