@@ -2,7 +2,18 @@ import React from 'react';
 import { FiPlus, FiMessageSquare, FiSettings, FiUser, FiTrash2 } from 'react-icons/fi';
 import './Sidebar.css';
 
-const Sidebar = ({ isOpen, toggleSidebar, chatSessions, currentChatId, createNewChat, loadChat, deleteChat }) => {
+const Sidebar = ({
+    isOpen,
+    toggleSidebar,
+    chatSessions,
+    currentChatId,
+    createNewChat,
+    loadChat,
+    deleteChat,
+    userProfile,
+    openProfile,
+    openSettings
+}) => {
     return (
         <aside className={`sidebar ${isOpen ? 'open' : 'closed'}`}>
             <div className="sidebar-header">
@@ -49,11 +60,11 @@ const Sidebar = ({ isOpen, toggleSidebar, chatSessions, currentChatId, createNew
             </div>
 
             <div className="sidebar-footer">
-                <button className="footer-btn">
-                    <FiUser size={18} />
-                    <span>Profile</span>
+                <button className="footer-btn" onClick={openProfile}>
+                    <span style={{ fontSize: '18px' }}>{userProfile?.avatar || '🐱'}</span>
+                    <span>{userProfile?.name || 'Profile'}</span>
                 </button>
-                <button className="footer-btn">
+                <button className="footer-btn" onClick={openSettings}>
                     <FiSettings size={18} />
                     <span>Settings</span>
                 </button>

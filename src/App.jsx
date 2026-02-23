@@ -4,6 +4,7 @@ import { v4 as uuidv4 } from 'uuid';
 import Sidebar from './components/Sidebar';
 import ChatArea from './components/ChatArea';
 import InputArea from './components/InputArea';
+import Modal from './components/Modal';
 import { FiMenu } from 'react-icons/fi';
 import './App.css';
 
@@ -17,6 +18,24 @@ function App() {
   });
   const [currentChatId, setCurrentChatId] = useState(null);
 
+  // Phase 3 States
+  const [isProfileOpen, setIsProfileOpen] = useState(false);
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+
+  const [userProfile, setUserProfile] = useState(() => {
+    const saved = localStorage.getItem('aihub-profile');
+    return saved ? JSON.parse(saved) : { name: 'User', avatar: '🐱' };
+  });
+
+  const [systemPrompt, setSystemPrompt] = useState(() => {
+    const saved = localStorage.getItem('aihub-system-prompt');
+    return saved || 'You are a helpful, brilliant AI assistant.';
+  });
+
+  // Temp states for modals forms
+  const [tempProfile, setTempProfile] = useState(userProfile);
+  const [tempSystemPrompt, setTempSystemPrompt] = useState(systemPrompt);
+
   const [isTyping, setIsTyping] = useState(false);
   const messagesEndRef = useRef(null);
 
@@ -28,6 +47,14 @@ function App() {
   useEffect(() => {
     localStorage.setItem('aihub-chats', JSON.stringify(chatSessions));
   }, [chatSessions]);
+
+  useEffect(() => {
+    localStorage.setItem('aihub-profile', JSON.stringify(userProfile));
+  }, [userProfile]);
+
+  useEffect(() => {
+    localStorage.setItem('aihub-system-prompt', systemPrompt);
+  }, [systemPrompt]);
 
   const createNewChat = () => {
     setCurrentChatId(null); // Null ID means a fresh, unsaved chat view
@@ -48,6 +75,24 @@ function App() {
     if (currentChatId === id) {
       setCurrentChatId(null);
     }
+  };
+
+  const clearAllChats = () => {
+    if (window.confirm("Are you sure you want to delete all chats? This cannot be undone.")) {
+      setChatSessions([]);
+      setCurrentChatId(null);
+      setIsSettingsOpen(false);
+    }
+  };
+
+  const saveProfile = () => {
+    setUserProfile(tempProfile);
+    setIsProfileOpen(false);
+  };
+
+  const saveSettings = () => {
+    setSystemPrompt(tempSystemPrompt);
+    setIsSettingsOpen(false);
   };
 
   const toggleSidebar = () => {
@@ -91,7 +136,11 @@ function App() {
 
     try {
       const apiUrl = import.meta.env.DEV ? 'http://localhost:3000/api/chat' : '/api/chat';
-      const response = await axios.post(apiUrl, { prompt });
+
+      // Inject system prompt for the backend
+      const fullPrompt = `System Instructions: ${systemPrompt}\n\nUser: ${prompt}`;
+
+      const response = await axios.post(apiUrl, { prompt: fullPrompt });
       const aiResponseMsg = { role: 'ai', content: response.data.response };
 
       setChatSessions((prev) =>
@@ -127,6 +176,15 @@ function App() {
         createNewChat={createNewChat}
         loadChat={loadChat}
         deleteChat={deleteChat}
+        userProfile={userProfile}
+        openProfile={() => {
+          setTempProfile(userProfile);
+          setIsProfileOpen(true);
+        }}
+        openSettings={() => {
+          setTempSystemPrompt(systemPrompt);
+          setIsSettingsOpen(true);
+        }}
       />
 
       <main className="main-content">
@@ -140,6 +198,66 @@ function App() {
         <ChatArea messages={messages} isTyping={isTyping} messagesEndRef={messagesEndRef} />
         <InputArea onSendMessage={handleSendMessage} isTyping={isTyping} />
       </main>
+
+      {/* Profile Modal */}
+      <Modal
+        isOpen={isProfileOpen}
+        onClose={() => setIsProfileOpen(false)}
+        title="Edit Profile"
+      >
+        <div className="modal-field">
+          <label>Display Name</label>
+          <input
+            type="text"
+            className="modal-input"
+            value={tempProfile.name}
+            onChange={(e) => setTempProfile({ ...tempProfile, name: e.target.value })}
+            maxLength={20}
+          />
+        </div>
+        <div className="modal-field">
+          <label>Choose Avatar</label>
+          <div className="avatar-selector">
+            {['🐱', '🐶', '🦊', '🐼', '🤖', '👽', '👻', '😎'].map((emoji) => (
+              <div
+                key={emoji}
+                className={`avatar-option ${tempProfile.avatar === emoji ? 'selected' : ''}`}
+                onClick={() => setTempProfile({ ...tempProfile, avatar: emoji })}
+              >
+                {emoji}
+              </div>
+            ))}
+          </div>
+        </div>
+        <button className="modal-btn" onClick={saveProfile}>Save Profile</button>
+      </Modal>
+
+      {/* Settings Modal */}
+      <Modal
+        isOpen={isSettingsOpen}
+        onClose={() => setIsSettingsOpen(false)}
+        title="Settings"
+      >
+        <div className="modal-field">
+          <label>System Prompt (AI Behavior)</label>
+          <textarea
+            className="modal-input modal-textarea"
+            value={tempSystemPrompt}
+            onChange={(e) => setTempSystemPrompt(e.target.value)}
+            placeholder="You are a helpful assistant..."
+          />
+        </div>
+        <button className="modal-btn" onClick={saveSettings}>Save Settings</button>
+
+        <div style={{ marginTop: '1rem', paddingTop: '1rem', borderTop: '1px solid var(--border-color)' }}>
+          <div className="modal-field">
+            <label style={{ color: '#ff4d4d' }}>Danger Zone</label>
+            <button className="modal-btn modal-btn-danger" onClick={clearAllChats}>
+              Clear All Chats
+            </button>
+          </div>
+        </div>
+      </Modal>
     </div>
   );
 }
